@@ -633,3 +633,24 @@ renderEmail();
 renderProfile();
 renderTracking();
 
+
+
+// ----- Mobile sidebar toggle -----
+const menuBtn = document.getElementById("menuToggle");
+const sidebar = document.querySelector(".sidebar");
+const backdrop = document.getElementById("backdrop");
+
+function openSidebar(){ sidebar.classList.add("open"); backdrop.classList.add("active"); }
+function closeSidebar(){ sidebar.classList.remove("open"); backdrop.classList.remove("active"); }
+
+if(menuBtn){
+  menuBtn.addEventListener("click", ()=>{
+    if(sidebar.classList.contains("open")) closeSidebar();
+    else openSidebar();
+  });
+}
+if(backdrop){
+  backdrop.addEventListener("click", closeSidebar);
+}
+// Close sidebar when choosing a nav item (on mobile)
+$$(".nav-link").forEach(btn => btn.addEventListener("click", closeSidebar));
