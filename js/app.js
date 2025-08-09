@@ -13,6 +13,7 @@
 const STAGES = ["Lead","Interested","Applied","Accepted","Deposited","Matriculated","Declined"];
 const TEMPS  = ["Hot","Warm","Cold","Nonresponsive"];
 
+const SOURCES = ["google","meta","linkedin","reddit","spotify","direct","referral","email"];
 const PROGRAMS = [
   "RN to BSN (Online)",
   "MS in Health Informatics",
@@ -48,19 +49,44 @@ const state = {
 
 // Seed if empty
 if(state.leads.length === 0){
-  const seed = [
-    {firstName:"Alex", lastName:"Rivera", email:"alex@example.com", phone:"412-555-0101", address:"123 Forbes Ave, Pittsburgh, PA",
-     program:"MS in Health Informatics", birthdate:"1998-04-12", stage:"Lead", temperature:"Warm", createdAt:fmtDate(new Date()), notes:"Requested brochure. Source: Paid Social (Meta)."},
-    {firstName:"Brianna", lastName:"Ng", email:"bri.ng@example.com", phone:"412-555-0112", address:"77 Fifth Ave, Pittsburgh, PA",
-     program:"RN to BSN (Online)", birthdate:"1995-09-20", stage:"Applied", temperature:"Hot", createdAt:fmtDate(new Date(Date.now()-86400000*3)), notes:"Nurse, 4 yrs exp. UTM: google/cpc/brand."},
-    {firstName:"Chris", lastName:"O'Neil", email:"chris.oneil@example.com", phone:"412-555-0123", address:"9 Grant St, Pittsburgh, PA",
-     program:"Hybrid DPT", birthdate:"1999-01-03", stage:"Interested", temperature:"Cold", createdAt:fmtDate(new Date(Date.now()-86400000*8)), notes:"Came from referral. Opened 2 emails."},
-    {firstName:"Dana", lastName:"Khan", email:"dana.khan@example.com", phone:"412-555-0140", address:"45 Walnut St, Pittsburgh, PA",
-     program:"MBA Online", birthdate:"1993-07-30", stage:"Accepted", temperature:"Warm", createdAt:fmtDate(new Date(Date.now()-86400000*15)), notes:"Scholarship pending."},
-    {firstName:"Evan", lastName:"Lee", email:"evan.lee@example.com", phone:"412-555-0199", address:"5 Liberty Ave, Pittsburgh, PA",
-     program:"MS in Data Science", birthdate:"2000-11-05", stage:"Matriculated", temperature:"Hot", createdAt:fmtDate(new Date(Date.now()-86400000*30)), notes:"Orientation complete."},
-  ];
-  state.leads = seed.map(l => ({ id: uid(), ...l }));
+  /* ENRICHED SEED 5 MONTHS */
+  
+  const names = [["Alex","Rivera"],["Brianna","Ng"],["Chris","O'Neil"],["Dana","Khan"],["Evan","Lee"],["Maya","Patel"],["Jordan","Kim"],["Sam","Hernandez"],["Taylor","Brooks"],["Riley","Chen"],["Priya","Singh"],["Noah","Green"],["Ava","Lopez"],["Liam","Diaz"],["Emma","White"]];
+  const addresses = ["123 Forbes Ave, Pittsburgh, PA","77 Fifth Ave, Pittsburgh, PA","9 Grant St, Pittsburgh, PA","45 Walnut St, Pittsburgh, PA","5 Liberty Ave, Pittsburgh, PA"];
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth()-5, 1);
+  const rand = (a)=> a[Math.floor(Math.random()*a.length)];
+  const randPhone = ()=> `412-555-${String(1000+Math.floor(Math.random()*9000))}`;
+  const stages = STAGES;
+  const temps = TEMPS;
+  const leads = [];
+  for(let d = new Date(start); d <= today; d.setDate(d.getDate()+Math.ceil(Math.random()*3))){
+    // create 1-3 leads every few days
+    const count = 1 + Math.floor(Math.random()*3);
+    for(let i=0;i<count;i++){
+      const [fn, ln] = rand(names);
+      const program = rand(PROGRAMS);
+      const source = rand(SOURCES);
+      const stage = rand(stages);
+      const temp = rand(temps);
+      const bdYear = 1985 + Math.floor(Math.random()*20);
+      const bd = new Date(bdYear, Math.floor(Math.random()*12), 1+Math.floor(Math.random()*28));
+      leads.push({
+        id: uid(),
+        firstName: fn, lastName: ln,
+        email: (fn.toLowerCase()+"."+ln.toLowerCase()+"@example.com").replace(/[^a-z@.]/g,""),
+        phone: randPhone(),
+        address: rand(addresses),
+        program, birthdate: fmtDate(bd),
+        stage, temperature: temp,
+        preferredContact: rand(["Email","Phone","SMS"]),
+        utm_source: source,
+        createdAt: fmtDate(new Date(d)),
+        notes: `Source: ${source}. Auto-seeded.`
+      });
+    }
+  }
+  state.leads = leads;
   saveLS("hecms_leads", state.leads);
 }
 PROGRAMS.forEach(p => {
@@ -90,8 +116,46 @@ $$(".nav-link").forEach(btn => {
 });
 
 // ---------- Dashboard
-let funnelChart, tempChart;
+let funnelChart, tempChart, programWowChart, sourceChart;
+
+function computeProgramWeekly(){
+  // returns {weeks:[YYYY-WW...], data: {program: [counts...] } }
+  const map = {}; // program -> week -> count
+  const weeksSet = new Set();
+  const toWeek = (dateStr)=>{
+    const d = new Date(dateStr);
+    const onejan = new Date(d.getFullYear(),0,1);
+    const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay()+1)/7);
+    const ww = String(week).padStart(2,"0");
+    return `${d.getFullYear()}-W${ww}`;
+  };
+  state.leads.forEach(l=>{
+    const w = toWeek(l.createdAt||fmtDate(new Date()));
+    weeksSet.add(w);
+    const prog = l.program||"Unknown";
+    map[prog] = map[prog] || {};
+    map[prog][w] = (map[prog][w]||0) + 1;
+  });
+  const weeks = [...weeksSet].sort();
+  const data = {};
+  Object.keys(map).forEach(p=>{
+    data[p] = weeks.map(w => map[p][w]||0);
+  });
+  return {weeks, data};
+}
+function computeSources(){
+  const counts = {};
+  state.leads.forEach(l=>{
+    const s = (l.utm_source||"direct").toLowerCase();
+    counts[s] = (counts[s]||0) + 1;
+  });
+  const labels = Object.keys(counts).sort();
+  const values = labels.map(k=>counts[k]);
+  return {labels, values};
+}
+
 function renderDashboard(){
+
   // KPIs
   $("#kpi-total").textContent = state.leads.length;
   $("#kpi-hot").textContent = state.leads.filter(l=>l.temperature==="Hot").length;
@@ -123,6 +187,21 @@ function renderDashboard(){
     },
     options:{responsive:true}
   });
+
+
+  // Program Week-over-Week
+  const pw = computeProgramWeekly();
+  const ctxP = $("#programWowChart");
+  if(programWowChart) programWowChart.destroy();
+  const datasets = Object.keys(pw.data).map(p => ({ label:p, data: pw.data[p] }));
+  programWowChart = new Chart(ctxP, { type:"line", data:{ labels: pw.weeks, datasets }, options:{responsive:true} });
+
+  // Source breakdown
+  const src = computeSources();
+  const ctxS = $("#sourceChart");
+  if(sourceChart) sourceChart.destroy();
+  sourceChart = new Chart(ctxS, { type:"bar", data:{ labels: src.labels, datasets:[{label:"Leads", data: src.values}] }, options:{responsive:true, plugins:{legend:{display:false}}} });
+
 
   // Recent
   const sorted = [...state.leads].sort((a,b)=> (a.createdAt<b.createdAt?1:-1)).slice(0,8);
@@ -178,7 +257,7 @@ function buildTable(){
       <td>${l.stage}</td>
       <td>${l.temperature}</td>
       <td>${l.createdAt}</td>
-      <td><button class="btn sm" data-edit="${l.id}">Edit</button></td>
+      <td><div class="row"><button class="btn sm" data-view="${l.id}">View</button><button class="btn sm" data-edit="${l.id}">Edit</button></div></td>
     </tr>
   `).join("");
 }
@@ -195,12 +274,65 @@ $("#leadsTable thead").addEventListener("click", e=>{
   buildTable();
 });
 tableBody.addEventListener("click", e=>{
+  const btnView = e.target.closest("button[data-view]");
+  if(btnView){ openLeadDetail(btnView.dataset.view); return; }
   const btn = e.target.closest("button[data-edit]");
   if(!btn) return;
   const id = btn.dataset.edit;
   openLeadModal(id);
 });
 
+
+// ---------- Lead Detail View
+function showView(id){
+  $$(".view").forEach(v=>v.classList.remove("active"));
+  $("#"+id).classList.add("active");
+}
+function openLeadDetail(id){
+  const l = state.leads.find(x=>x.id===id); if(!l) return;
+  // Render fields
+  const fieldsBox = $("#leadProfileFields");
+  fieldsBox.innerHTML = `
+    <div class="row"><strong>Name:</strong> <span>${l.firstName} ${l.lastName}</span></div>
+    <div class="row"><strong>Date of Birth:</strong> <span>${l.birthdate||""}</span></div>
+    <div class="row"><strong>Address:</strong> <span>${l.address||""}</span></div>
+    <div class="row"><strong>Phone:</strong> <span>${l.phone||""}</span></div>
+    <div class="row"><strong>Email:</strong> <span>${l.email||""}</span></div>
+    <div class="row"><strong>Program:</strong> <span>${l.program||""}</span></div>
+    <div class="row"><strong>Stage:</strong> <span>${l.stage||""}</span></div>
+    <div class="row"><strong>Lead Temperature:</strong> <span>${l.temperature||""}</span></div>
+    <div class="row"><strong>Preferred Contact:</strong> <span>${l.preferredContact||"Email"}</span></div>
+    <div class="row"><strong>Source (utm_source):</strong> <span>${l.utm_source||"direct"}</span></div>
+    <div class="row"><strong>Notes:</strong> <span>${l.notes||""}</span></div>
+  `;
+  // Communications: SMS + Email (mock) + Phone (from notes heuristic)
+  const comms = [];
+  // SMS
+  const thread = state.sms.threads.find(t=>t.leadId===id);
+  if(thread){
+    const last = thread.messages.slice(-3);
+    last.forEach(m => comms.push({type:"SMS", who:m.who, text:m.text, at:m.at}));
+  }
+  // Email: naive lookup if any templates "sent" via automation logs
+  state.events.slice(-50).forEach(ev=>{
+    if(ev.line && ev.line.includes(l.email)){
+      comms.push({type:"Email", who:"system", text: ev.line, at: ev.at});
+    }
+  });
+  // Phone: simple parse of notes lines that start with "Call:"
+  (l.notes||"").split(/\\n/).forEach(nl=>{
+    if(/^call:/i.test(nl.trim())){
+      comms.push({type:"Phone", who:"you", text: nl.replace(/^call:/i,"").trim(), at:new Date().toISOString()});
+    }
+  });
+  comms.sort((a,b)=> (a.at<b.at?1:-1));
+  const commsBox = $("#leadComms");
+  commsBox.innerHTML = comms.slice(0,10).map(c=>`<div class="row"><strong>${c.type}</strong> — ${new Date(c.at).toLocaleString()}<br>${c.text}</div>`).join("") || `<div class="muted">No recent communications.</div>`;
+  showView("view-lead-detail");
+}
+$("#backToReports").addEventListener("click", ()=>{
+  showView("view-reports");
+});
 // Saved reports
 $("#saveReportBtn").addEventListener("click", ()=>{
   const report = {
@@ -269,6 +401,7 @@ $("#saveLeadBtn").addEventListener("click", ()=>{
   l.birthdate = $("#mBirthdate").value || "";
   l.stage     = $("#mStage").value;
   l.temperature = $("#mTemp").value;
+  l.preferredContact = $("#mPreferredContact").value;
   l.notes     = $("#mNotes").value;
   saveLS("hecms_leads", state.leads);
   toggleModal(false);
@@ -300,6 +433,8 @@ $("#createLeadBtn").addEventListener("click", ()=>{
     program: $("#aProgram").value.trim(),
     birthdate: $("#aBirthdate").value || "",
     stage: "Lead",
+    preferredContact: $("#aPreferredContact").value,
+    utm_source: "direct",
     temperature: $("#aTemp").value,
     createdAt: fmtDate(new Date()),
     notes: ""

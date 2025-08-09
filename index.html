@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>University of Pittsburgh Higher-Ed CMS Demo (Frontend Prototype)</title>
+  <title>Pitt-Style Higher-Ed CMS (Frontend Prototype)</title>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,6 +55,16 @@
         </div>
 
         <div class="grid-2">
+  <div class="card">
+    <div class="card-title">Leads by Program (Week over Week)</div>
+    <canvas id="programWowChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Leads by Source (utm_source)</div>
+    <canvas id="sourceChart"></canvas>
+  </div>
+</div>
+<div class="grid-2">
           <div class="card">
             <div class="card-title">Stage Funnel</div>
             <canvas id="funnelChart"></canvas>
@@ -123,6 +133,16 @@
           <h2>Insights & Analytics</h2>
         </header>
         <div class="grid-2">
+  <div class="card">
+    <div class="card-title">Leads by Program (Week over Week)</div>
+    <canvas id="programWowChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Leads by Source (utm_source)</div>
+    <canvas id="sourceChart"></canvas>
+  </div>
+</div>
+<div class="grid-2">
           <div class="card">
             <div class="card-title">Stages Over Time</div>
             <canvas id="stagesOverTime"></canvas>
@@ -149,6 +169,16 @@
           </div>
         </header>
         <div class="grid-2">
+  <div class="card">
+    <div class="card-title">Leads by Program (Week over Week)</div>
+    <canvas id="programWowChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Leads by Source (utm_source)</div>
+    <canvas id="sourceChart"></canvas>
+  </div>
+</div>
+<div class="grid-2">
           <div class="card">
             <div class="card-title">Builder</div>
             <div class="builder">
@@ -213,6 +243,16 @@
           </div>
         </header>
         <div class="grid-2">
+  <div class="card">
+    <div class="card-title">Leads by Program (Week over Week)</div>
+    <canvas id="programWowChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Leads by Source (utm_source)</div>
+    <canvas id="sourceChart"></canvas>
+  </div>
+</div>
+<div class="grid-2">
           <div class="card">
             <div class="card-title">Composer</div>
             <textarea id="emailBody" rows="12" placeholder="Write your email..."></textarea>
@@ -244,6 +284,16 @@
         <header class="page-header"><h2>Profile</h2></header>
         <div class="card">
           <div class="grid-2">
+  <div class="card">
+    <div class="card-title">Leads by Program (Week over Week)</div>
+    <canvas id="programWowChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Leads by Source (utm_source)</div>
+    <canvas id="sourceChart"></canvas>
+  </div>
+</div>
+<div class="grid-2">
             <div>
               <label>Name</label>
               <input id="profileName" placeholder="Your Name" />
@@ -272,6 +322,16 @@
       <section id="view-tracking" class="view">
         <header class="page-header"><h2>Tracking</h2></header>
         <div class="grid-2">
+  <div class="card">
+    <div class="card-title">Leads by Program (Week over Week)</div>
+    <canvas id="programWowChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Leads by Source (utm_source)</div>
+    <canvas id="sourceChart"></canvas>
+  </div>
+</div>
+<div class="grid-2">
           <div class="card">
             <div class="card-title">Pixel & UTM Capture (Demo)</div>
             <textarea id="pixelCode" class="code" rows="12" readonly></textarea>
@@ -288,6 +348,27 @@
           </div>
         </div>
       </section>
+    
+      <!-- LEAD DETAIL -->
+      <section id="view-lead-detail" class="view">
+        <header class="page-header">
+          <h2>Lead Profile</h2>
+          <div class="actions">
+            <button class="btn secondary" id="backToReports">Back to Reports</button>
+          </div>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Profile</div>
+            <div id="leadProfileFields"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Latest Communications</div>
+            <div id="leadComms"></div>
+          </div>
+        </div>
+      </section>
+    
     </main>
   </div>
 
@@ -300,6 +381,16 @@
       </div>
       <div class="modal-body">
         <div class="grid-2">
+  <div class="card">
+    <div class="card-title">Leads by Program (Week over Week)</div>
+    <canvas id="programWowChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Leads by Source (utm_source)</div>
+    <canvas id="sourceChart"></canvas>
+  </div>
+</div>
+<div class="grid-2">
           <div>
             <label>First Name</label><input id="mFirstName" />
             <label>Last Name</label><input id="mLastName" />
@@ -317,7 +408,19 @@
               <option>Accepted</option><option>Deposited</option><option>Matriculated</option>
               <option>Declined</option>
             </select>
-            <label>Temperature</label>
+            <label>Preferred Contact</label>
+<select id="mPreferredContact">
+  <option>Email</option>
+  <option>Phone</option>
+  <option>SMS</option>
+</select>
+<label>Preferred Contact</label>
+<select id="aPreferredContact">
+  <option>Email</option>
+  <option>Phone</option>
+  <option>SMS</option>
+</select>
+<label>Temperature</label>
             <select id="mTemp">
               <option>Hot</option><option>Warm</option><option>Cold</option><option>Nonresponsive</option>
             </select>
@@ -342,6 +445,16 @@
       </div>
       <div class="drawer-body">
         <div class="grid-2">
+  <div class="card">
+    <div class="card-title">Leads by Program (Week over Week)</div>
+    <canvas id="programWowChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Leads by Source (utm_source)</div>
+    <canvas id="sourceChart"></canvas>
+  </div>
+</div>
+<div class="grid-2">
           <div>
             <label>First Name</label><input id="aFirstName" />
             <label>Last Name</label><input id="aLastName" />
@@ -352,7 +465,19 @@
             <label>Address</label><input id="aAddress" />
             <label>Program</label><input id="aProgram" list="programList" />
             <label>Birth Date</label><input id="aBirthdate" type="date" />
-            <label>Temperature</label>
+            <label>Preferred Contact</label>
+<select id="mPreferredContact">
+  <option>Email</option>
+  <option>Phone</option>
+  <option>SMS</option>
+</select>
+<label>Preferred Contact</label>
+<select id="aPreferredContact">
+  <option>Email</option>
+  <option>Phone</option>
+  <option>SMS</option>
+</select>
+<label>Temperature</label>
             <select id="aTemp">
               <option>Warm</option><option>Hot</option><option>Cold</option><option>Nonresponsive</option>
             </select>

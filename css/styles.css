@@ -1,17 +1,19 @@
 
 :root{
-  --bg:#0f172a;
-  --panel:#111827;
+  --pitt-royal:#003594;     /* Pitt Royal */
+  --pitt-gold:#FFB81C;      /* Pitt Gold */
+  --bg:#0a0f1f;             /* Dark navy background for contrast */
+  --panel:#0d1428;
   --panel-2:#0b1220;
-  --muted:#9ca3af;
-  --text:#e5e7eb;
-  --accent:#22d3ee;
-  --accent-2:#60a5fa;
+  --muted:#a7b0c3;
+  --text:#f4f6f8;
+  --accent:var(--pitt-gold);
+  --accent-2:#4f7ccf;       /* lighter royal for gradients */
   --danger:#ef4444;
   --ok:#34d399;
   --warn:#f59e0b;
-  --card:#0b1220;
-  --border:#1f2937;
+  --card:#0d1428;
+  --border:#1d2743;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:var(--text);}
@@ -282,3 +284,25 @@ input[type="checkbox"]{width:auto}
   .chip{ padding: 8px 12px; }
   .icon-btn{ padding: 10px 12px; }
 }
+
+
+/* Accessible focus styles */
+:focus{ outline: 3px solid var(--pitt-gold); outline-offset: 2px; }
+.nav-link:focus,.btn:focus,.chip:focus,.icon-btn:focus,input:focus,select:focus,textarea:focus{ outline: 3px solid var(--pitt-gold); outline-offset: 2px; }
+
+/* Button contrast: Royal background with Gold border accents */
+.btn{
+  background: var(--pitt-royal);
+  color: #ffffff;
+  border: 2px solid var(--pitt-gold);
+}
+.btn.secondary{
+  background:#121a33;
+  color:#ffffff;
+  border:1px solid var(--border);
+}
+/* Sidebar brand accent using Pitt colors */
+.brand-dot{ background: var(--pitt-gold); box-shadow: 0 0 10px var(--pitt-gold); }
+.nav-link.active,.nav-link:hover{ background:#111a34; border-color: var(--border); }
+thead th{ background:#0d1834; }
+.code{ background:#0b142b; color:#e6ecf7; }
