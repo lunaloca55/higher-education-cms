@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pitt-Style Higher-Ed CMS (Frontend Prototype)</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script defer src="js/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        <h1>Higher-Ed CMS</h1>
+      </div>
+      <nav>
+        <button class="nav-link active" data-view="dashboard">Main Dashboard</button>
+        <button class="nav-link" data-view="reports">Reports</button>
+        <button class="nav-link" data-view="analytics">Insights & Analytics</button>
+        <button class="nav-link" data-view="forms">Forms</button>
+        <button class="nav-link" data-view="sms">Text Messaging</button>
+        <button class="nav-link" data-view="email">Emails</button>
+        <button class="nav-link" data-view="profile">Profile</button>
+        <button class="nav-link" data-view="tracking">Tracking</button>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="exportDataBtn" class="btn sm">Export CSV</button>
+        <button id="importDataBtn" class="btn sm secondary">Import CSV</button>
+        <input type="file" id="importFile" accept=".csv" style="display:none" />
+      </div>
+    </aside>
+
+    <main class="content">
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view active">
+        <header class="page-header">
+          <h2>Main Dashboard</h2>
+          <div class="actions">
+            <button class="btn" id="addLeadBtn">+ Add Lead</button>
+          </div>
+        </header>
+
+        <div class="kpis">
+          <div class="kpi-card"><div class="kpi-label">Total Leads</div><div id="kpi-total" class="kpi-value">0</div></div>
+          <div class="kpi-card"><div class="kpi-label">Hot Leads</div><div id="kpi-hot" class="kpi-value">0</div></div>
+          <div class="kpi-card"><div class="kpi-label">Applied</div><div id="kpi-applied" class="kpi-value">0</div></div>
+          <div class="kpi-card"><div class="kpi-label">Matriculated</div><div id="kpi-matriculated" class="kpi-value">0</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Stage Funnel</div>
+            <canvas id="funnelChart"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-title">Lead Temperature Mix</div>
+            <canvas id="tempChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Recent Leads</div>
+          <div id="recentLeads"></div>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="view-reports" class="view">
+        <header class="page-header">
+          <h2>Reports</h2>
+          <div class="actions">
+            <input type="search" id="searchInput" placeholder="Search leads..." />
+            <select id="filterStage">
+              <option value="">All Stages</option>
+              <option>Lead</option><option>Interested</option><option>Applied</option>
+              <option>Accepted</option><option>Deposited</option><option>Matriculated</option>
+              <option>Declined</option>
+            </select>
+            <select id="filterTemp">
+              <option value="">Any Temp</option>
+              <option>Hot</option><option>Warm</option><option>Cold</option><option>Nonresponsive</option>
+            </select>
+            <select id="filterProgram">
+              <option value="">All Programs</option>
+            </select>
+            <button id="saveReportBtn" class="btn">Save Report</button>
+            <select id="savedReports"></select>
+          </div>
+        </header>
+
+        <div class="table-wrap">
+          <table id="leadsTable">
+            <thead>
+              <tr>
+                <th data-sort="lastName">Last</th>
+                <th data-sort="firstName">First</th>
+                <th data-sort="email">Email</th>
+                <th data-sort="phone">Phone</th>
+                <th data-sort="address">Address</th>
+                <th data-sort="program">Program</th>
+                <th data-sort="birthdate">Birth Date</th>
+                <th data-sort="stage">Stage</th>
+                <th data-sort="temperature">Temp</th>
+                <th data-sort="createdAt">Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section id="view-analytics" class="view">
+        <header class="page-header">
+          <h2>Insights & Analytics</h2>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Stages Over Time</div>
+            <canvas id="stagesOverTime"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-title">Dropoff Rate by Stage</div>
+            <canvas id="dropoffChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Attribution Breakdown (Sample)</div>
+          <canvas id="attributionChart"></canvas>
+          <p class="muted">* Frontend demo only. Connect to your real UTMs and referrers via the Tracking page.</p>
+        </div>
+      </section>
+
+      <!-- FORMS -->
+      <section id="view-forms" class="view">
+        <header class="page-header">
+          <h2>Forms</h2>
+          <div class="actions">
+            <input id="formName" placeholder="Form name (e.g., RN to BSN Lead Form)" />
+            <button class="btn" id="createFormBtn">+ Create Form</button>
+          </div>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Builder</div>
+            <div class="builder">
+              <div class="field-bank">
+                <div class="bank-title">Available Fields</div>
+                <button class="chip" data-field="firstName">First Name</button>
+                <button class="chip" data-field="lastName">Last Name</button>
+                <button class="chip" data-field="email">Email</button>
+                <button class="chip" data-field="phone">Phone</button>
+                <button class="chip" data-field="address">Home Address</button>
+                <button class="chip" data-field="program">Program of Interest</button>
+                <button class="chip" data-field="birthdate">Birth Date</button>
+                <button class="chip" data-field="consent">SMS/Email Consent</button>
+                <button class="chip" data-field="custom">Custom Field</button>
+              </div>
+              <div class="drop-zone" id="formCanvas">
+                <div class="muted">Click fields to add them here</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Embed & Preview</div>
+            <textarea id="embedCode" rows="8" class="code" readonly></textarea>
+            <div id="formPreview" class="preview"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Saved Forms</div>
+          <div id="formsList"></div>
+        </div>
+      </section>
+
+      <!-- SMS -->
+      <section id="view-sms" class="view">
+        <header class="page-header">
+          <h2>Text Messaging</h2>
+          <div class="actions">
+            <input id="smsSearch" placeholder="Search conversations" />
+            <button class="btn secondary" id="smsSettingsBtn">Settings</button>
+          </div>
+        </header>
+        <div class="sms-layout">
+          <div class="sms-threads" id="smsThreads"></div>
+          <div class="sms-convo">
+            <div id="smsConversation" class="sms-conversation"></div>
+            <div class="sms-compose">
+              <input id="smsInput" placeholder="Type a message..." />
+              <button class="btn" id="smsSendBtn">Send</button>
+            </div>
+            <div class="muted">* Demo only. Connect your SMS provider on the Settings screen.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EMAILS -->
+      <section id="view-email" class="view">
+        <header class="page-header">
+          <h2>Emails</h2>
+          <div class="actions">
+            <input id="emailSubject" placeholder="Subject line" />
+            <button class="btn" id="emailSaveTemplate">Save Template</button>
+          </div>
+        </header>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Composer</div>
+            <textarea id="emailBody" rows="12" placeholder="Write your email..."></textarea>
+            <div class="row">
+              <input id="emailTo" placeholder="To (comma-separated emails)" />
+              <button class="btn">Send (Mock)</button>
+            </div>
+            <p class="muted">* Demo only. Hook into your ESP (e.g., Salesforce, Slate, Mailgun) on the Tracking page.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Templates & Automations</div>
+            <div id="emailTemplates"></div>
+            <div class="automation">
+              <label>Automation Rule (demo)</label>
+              <select id="emailAutomationRule">
+                <option value="">— Select —</option>
+                <option value="stage-change">On Stage Change</option>
+                <option value="hot-lead">When Lead becomes Hot</option>
+              </select>
+              <input id="emailAutomationTemplate" placeholder="Template to send" />
+              <button class="btn secondary" id="saveEmailAutomation">Save Rule</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="view-profile" class="view">
+        <header class="page-header"><h2>Profile</h2></header>
+        <div class="card">
+          <div class="grid-2">
+            <div>
+              <label>Name</label>
+              <input id="profileName" placeholder="Your Name" />
+              <label>Email</label>
+              <input id="profileEmail" placeholder="you@university.edu" />
+              <label>Programs Managed</label>
+              <input id="profilePrograms" placeholder="e.g., RN to BSN, MSHI" />
+              <button class="btn" id="saveProfile">Save</button>
+            </div>
+            <div>
+              <label>Notifications</label>
+              <div class="row">
+                <input type="checkbox" id="notifEmail" /> <span>Email</span>
+              </div>
+              <div class="row">
+                <input type="checkbox" id="notifSMS" /> <span>SMS</span>
+              </div>
+              <label>Signature</label>
+              <textarea id="profileSignature" rows="6" placeholder="-- Your Name\nEnrollment Specialist, University of Pittsburgh"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRACKING -->
+      <section id="view-tracking" class="view">
+        <header class="page-header"><h2>Tracking</h2></header>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Pixel & UTM Capture (Demo)</div>
+            <textarea id="pixelCode" class="code" rows="12" readonly></textarea>
+            <button class="btn" id="copyPixel">Copy Pixel</button>
+            <p class="muted">Paste this into your site via GTM. It captures UTMs/referrer into first-party cookies and sends a mock event.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Event Tester</div>
+            <div class="row">
+              <input id="testEventName" placeholder="event_name (e.g., lead_submit)" />
+              <button class="btn" id="fireTestEvent">Fire Test Event</button>
+            </div>
+            <div id="eventLog" class="event-log"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Lead Modal -->
+  <div class="modal" id="leadModal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Lead</h3>
+        <button class="icon-btn" id="closeLeadModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid-2">
+          <div>
+            <label>First Name</label><input id="mFirstName" />
+            <label>Last Name</label><input id="mLastName" />
+            <label>Email</label><input id="mEmail" />
+            <label>Phone</label><input id="mPhone" />
+            <label>Address</label><input id="mAddress" />
+          </div>
+          <div>
+            <label>Program</label><input id="mProgram" list="programList" />
+            <datalist id="programList"></datalist>
+            <label>Birth Date</label><input id="mBirthdate" type="date" />
+            <label>Stage</label>
+            <select id="mStage">
+              <option>Lead</option><option>Interested</option><option>Applied</option>
+              <option>Accepted</option><option>Deposited</option><option>Matriculated</option>
+              <option>Declined</option>
+            </select>
+            <label>Temperature</label>
+            <select id="mTemp">
+              <option>Hot</option><option>Warm</option><option>Cold</option><option>Nonresponsive</option>
+            </select>
+          </div>
+        </div>
+        <label>Notes</label>
+        <textarea id="mNotes" rows="5" placeholder="Contact history, next steps, etc."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary" id="deleteLeadBtn">Delete</button>
+        <button class="btn" id="saveLeadBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Lead Drawer -->
+  <div class="drawer" id="addLeadDrawer" aria-hidden="true">
+    <div class="drawer-content">
+      <div class="drawer-header">
+        <h3>Add Lead</h3>
+        <button class="icon-btn" id="closeAddLead">&times;</button>
+      </div>
+      <div class="drawer-body">
+        <div class="grid-2">
+          <div>
+            <label>First Name</label><input id="aFirstName" />
+            <label>Last Name</label><input id="aLastName" />
+            <label>Email</label><input id="aEmail" />
+            <label>Phone</label><input id="aPhone" />
+          </div>
+          <div>
+            <label>Address</label><input id="aAddress" />
+            <label>Program</label><input id="aProgram" list="programList" />
+            <label>Birth Date</label><input id="aBirthdate" type="date" />
+            <label>Temperature</label>
+            <select id="aTemp">
+              <option>Warm</option><option>Hot</option><option>Cold</option><option>Nonresponsive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-footer">
+        <button class="btn" id="createLeadBtn">Create Lead</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
