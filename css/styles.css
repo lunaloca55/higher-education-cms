@@ -86,3 +86,199 @@ input[type="checkbox"]{width:auto}
 .drawer-header,.drawer-footer{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .drawer-footer{border-top:1px solid var(--border)}
 .drawer-body{padding:12px 14px;overflow:auto}
+
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .sidebar {
+    width: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  #app {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-footer {
+    position: static;
+    margin-top: 12px;
+  }
+  .content {
+    padding: 16px;
+  }
+  .kpis {
+    grid-template-columns: 1fr;
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  table {
+    font-size: 12px;
+  }
+  thead th, tbody td {
+    padding: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .btn {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  input, select, textarea {
+    font-size: 14px;
+  }
+  .nav-link {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+  .kpi-card {
+    padding: 10px;
+  }
+  .kpi-value {
+    font-size: 22px;
+  }
+}
+
+
+/* ===================== */
+/* Mobile & Responsive   */
+/* ===================== */
+
+/* Mobile menu button */
+.mobile-menu-btn{
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1001;
+  background: #0f1a2e;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: none; /* shown on small screens */
+}
+
+/* Backdrop for sidebar */
+.backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 1000;
+  display: none;
+}
+
+/* Base layout tweaks */
+.sidebar{
+  transition: transform .25s ease;
+}
+
+@media (max-width: 1024px){
+  /* Show mobile menu button */
+  .mobile-menu-btn{ display: inline-flex; align-items:center; justify-content:center; }
+
+  /* Sidebar becomes an overlay drawer */
+  .sidebar{
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    z-index: 1002;
+    width: 86vw;
+    max-width: 320px;
+  }
+  .sidebar.open{ transform: translateX(0); }
+  .backdrop.active{ display:block; }
+
+  /* Give content some top padding so the button doesn't overlap */
+  .content{ padding-top: 60px; }
+}
+
+/* Grid responsiveness */
+@media (max-width: 1200px){
+  .grid-2{ grid-template-columns: 1fr; }
+}
+@media (max-width: 768px){
+  .kpis{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px){
+  .kpis{ grid-template-columns: 1fr; }
+}
+
+/* Reports table: make more compact and hide less-crucial columns on small screens */
+@media (max-width: 960px){
+  thead th, tbody td{ font-size: 12px; padding: 8px; }
+  /* Hide Address (5th), Birth Date (7th), Created (10th) on smaller screens */
+  #leadsTable thead th:nth-child(5),
+  #leadsTable tbody td:nth-child(5),
+  #leadsTable thead th:nth-child(7),
+  #leadsTable tbody td:nth-child(7),
+  #leadsTable thead th:nth-child(10),
+  #leadsTable tbody td:nth-child(10){
+    display:none;
+  }
+}
+@media (max-width: 640px){
+  /* Also hide Phone (4th) and Program (6th) at very small widths for scannability */
+  #leadsTable thead th:nth-child(4),
+  #leadsTable tbody td:nth-child(4),
+  #leadsTable thead th:nth-child(6),
+  #leadsTable tbody td:nth-child(6){
+    display:none;
+  }
+  .page-header{ flex-direction: column; align-items: flex-start; gap: 10px; }
+  .actions{ width: 100%; display:flex; flex-wrap:wrap; gap:8px; }
+  .btn{ width: 100%; }
+  .btn.sm{ width: auto; }
+  input, select, textarea{ font-size: 16px; } /* avoid iOS zoom */
+}
+
+/* Forms builder responsiveness */
+@media (max-width: 900px){
+  .builder{ grid-template-columns: 1fr; }
+}
+
+/* SMS layout responsiveness */
+@media (max-width: 1000px){
+  .sms-layout{ grid-template-columns: 1fr; }
+  .sms-threads{ height: 220px; }
+  .sms-conversation{ height: 320px; }
+}
+
+/* Modal & Drawer responsiveness */
+@media (max-width: 760px){
+  .modal .modal-content{ width: 95%; }
+  .drawer-content{ width: 100%; }
+  .grid-2{ grid-template-columns: 1fr; }
+  .row{ flex-wrap: wrap; }
+}
+
+/* Improve tap targets on small screens */
+@media (max-width: 480px){
+  .nav-link{ padding: 12px 14px; }
+  .chip{ padding: 8px 12px; }
+  .icon-btn{ padding: 10px 12px; }
+}
